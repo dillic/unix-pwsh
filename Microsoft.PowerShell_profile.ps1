@@ -212,7 +212,12 @@ function Get-PubIP { (Invoke-WebRequest http://ifconfig.me/ip).Content }
 
 # Open WinUtil
 function winutil {
-	iwr -useb https://christitus.com/win | iex
+    try {
+        $response = Invoke-WebRequest -Uri "https://christitus.com/win" -UseBasicParsing
+        Invoke-Expression $response.Content
+    } catch {
+        Write-Host "Failed to download or execute the script." -ForegroundColor Red
+    }
 }
 
 # System Utilities
