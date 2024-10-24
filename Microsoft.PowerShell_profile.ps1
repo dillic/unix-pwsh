@@ -198,7 +198,7 @@ $Wrapper = {
 $null = $Powershell.AddScript($Wrapper.ToString()).BeginInvoke()
 
 function Edit-Profile {
-    code $PROFILE.CurrentUserAllHosts
+    code $PROFILE
 }
 function touch($file) { "" | Out-File $file -Encoding ASCII }
 function ff($name) {
