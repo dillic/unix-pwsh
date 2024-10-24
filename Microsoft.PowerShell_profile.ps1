@@ -11,8 +11,11 @@ $OhMyPoshConfig = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/m
 # Use wmi as there is no timeout in pwsh  5.0 and generally slow.
 $timeout = 1000 
 $pingResult = Get-CimInstance -ClassName Win32_PingStatus -Filter "Address = 'github.com' AND Timeout = $timeout" -Property StatusCode 2>$null
-if ($pingResult.StatusCode -eq 0) {$canConnectToGitHub = $true} 
-else {$canConnectToGitHub = $false}
+if ($pingResult.StatusCode -eq 0) {
+    $canConnectToGitHub = $true
+} else {
+    $canConnectToGitHub = $false
+}
 
 # Define vars.
 $baseDir = "$HOME\unix-pwsh"
@@ -44,7 +47,7 @@ If you have further questions, on how to set the above, don't hesitate to ask me
 "@
 
 $scriptBlock = {
-    param($githubUser, $files, $baseDir, $canConnectToGitHub)
+    param($githubUser, $files, $baseDir, $canConnectToGitHub, $githubBaseURL)
     Invoke-Expression (Invoke-WebRequest -Uri "$githubBaseURL/pwsh_helper.ps1" -UseBasicParsing).Content
     BackgroundTasks
 }
@@ -112,18 +115,15 @@ oh-my-posh init pwsh --config $OhMyPoshConfig | Invoke-Expression
 # Check if psVersion is lower than 7.x, then load the functions **without** deferred loading
 if ($PSVersionTable.PSVersion.Major -lt 7) {
     if ($injectionMethod -eq "local") {
-        . "$baseDir\custom_functions.ps1"
         . "$baseDir\functions.ps1"
         # Execute the background tasks
-        Start-Job -ScriptBlock $scriptBlock -ArgumentList $githubUser, $files, $baseDir, $canConnectToGitHub
+        Start-Job -ScriptBlock $scriptBlock -ArgumentList $githubUser, $files, $baseDir, $canConnectToGitHub, $githubBaseURL
         } else {
         if ($global:canConnectToGitHub) {
-            #Load Custom Functions
-            . Invoke-Expression (Invoke-WebRequest -Uri "$githubBaseURL/custom_functions.ps1" -UseBasicParsing).Content
             #Load Functions
             . Invoke-Expression (Invoke-WebRequest -Uri "$githubBaseURL/functions.ps1" -UseBasicParsing).Content
             # Update PowerShell in the background
-            Start-Job -ScriptBlock $scriptBlock -ArgumentList $githubUser, $files, $baseDir, $canConnectToGitHub
+            Start-Job -ScriptBlock $scriptBlock -ArgumentList $githubUser, $files, $baseDir, $canConnectToGitHub, $githubBaseURL
                 } else {
             Write-Host "❌ Skipping initialization due to GitHub not responding within 1 second." -ForegroundColor Red
         }
@@ -134,18 +134,15 @@ if ($PSVersionTable.PSVersion.Major -lt 7) {
 
 $Deferred = {
     if ($injectionMethod -eq "local") {
-        . "$baseDir\custom_functions.ps1"
         . "$baseDir\functions.ps1"
         # Execute the background tasks
-        Start-Job -ScriptBlock $scriptBlock -ArgumentList $githubUser, $files, $baseDir, $canConnectToGitHub
+        Start-Job -ScriptBlock $scriptBlock -ArgumentList $githubUser, $files, $baseDir, $canConnectToGitHub, $githubBaseURL
         } else {
         if ($global:canConnectToGitHub) {
-            #Load Custom Functions
-            . Invoke-Expression (Invoke-WebRequest -Uri "$githubBaseURL/custom_functions.ps1" -UseBasicParsing).Content
             #Load Functions
             . Invoke-Expression (Invoke-WebRequest -Uri "$githubBaseURL/functions.ps1" -UseBasicParsing).Content
             # Update PowerShell in the background
-            Start-Job -ScriptBlock $scriptBlock -ArgumentList $githubUser, $files, $baseDir, $canConnectToGitHub
+            Start-Job -ScriptBlock $scriptBlock -ArgumentList $githubUser, $files, $baseDir, $canConnectToGitHub, $githubBaseURL
             } else {
             Write-Host "❌ Skipping initialization due to GitHub not responding within 1 second." -ForegroundColor Red
         }
