@@ -463,6 +463,8 @@ cpy <text> - Copies the specified text to the clipboard.
 pst - Retrieves text from the clipboard.
 
 Use 'Show-Help' to display this help message.
+
+winget-upgrade - Upgrades all installed packages using Winget.
 "@
 }
 Write-Host "Use 'Show-Help' to display help"
