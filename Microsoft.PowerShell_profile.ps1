@@ -210,16 +210,6 @@ function ff($name) {
 # Network Utilities
 function Get-PubIP { (Invoke-WebRequest http://ifconfig.me/ip).Content }
 
-# Open WinUtil
-function winutil {
-    try {
-        $response = Invoke-WebRequest -Uri "https://christitus.com/win" -UseBasicParsing
-        Invoke-Expression $response.Content
-    } catch {
-        Write-Host "Failed to download or execute the script." -ForegroundColor Red
-    }
-}
-
 # System Utilities
 function admin {
     if ($args.Count -gt 0) {
