@@ -350,7 +350,7 @@ function wgu { winget upgrade --all }
 function wgs { winget search "$args"}
 
 # Winget Install Package based on ID
-function wgi { winget install --id "@args" }
+function wgi { winget install --id @args }
 
 # Enhanced PowerShell Experience
 Set-PSReadLineOption -Colors @{
