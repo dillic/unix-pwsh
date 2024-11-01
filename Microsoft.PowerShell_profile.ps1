@@ -343,14 +343,15 @@ function cpy { Set-Clipboard $args[0] }
 
 function pst { Get-Clipboard }
 
+# Winget functions
 # Winget Upgrade All
 function wgu { winget upgrade --all }
-
 # Winget Search
 function wgs { winget search "$args"}
-
-# Winget Install Package based on ID
+# Winget Install Package - based on ID
 function wgi { winget install --id @args }
+# Winget Package Information - based on ID
+function wgss { winget show --id @args }
 
 # Enhanced PowerShell Experience
 Set-PSReadLineOption -Colors @{
