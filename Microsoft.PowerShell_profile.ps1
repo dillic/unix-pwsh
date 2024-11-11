@@ -1,5 +1,5 @@
 $githubUser = "Dillic" # Change this here if you forked the repository.
-$name= "Dillic" # Change this to your name.
+$name= "Martin" # Change this to your name.
 $githubRepo = "unix-pwsh" # Change this here if you forked the repository and changed the name.
 $githubBaseURL= "https://raw.githubusercontent.com/$githubUser/$githubRepo/main"
 $OhMyPoshConfigFileName = "montys.omp.json" # Filename of the OhMyPosh config file
