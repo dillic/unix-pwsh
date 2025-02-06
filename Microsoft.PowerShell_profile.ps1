@@ -1,5 +1,5 @@
 $githubUser = "Dillic" # Change this here if you forked the repository.
-$name= "Martin" # Change this to your name.
+$name= "Dillic" # Change this to your name.
 $githubRepo = "unix-pwsh" # Change this here if you forked the repository and changed the name.
 $githubBaseURL= "https://raw.githubusercontent.com/$githubUser/$githubRepo/main"
 $OhMyPoshConfigFileName = "montys.omp.json" # Filename of the OhMyPosh config file
@@ -380,6 +380,84 @@ $scriptblock = {
         }
 }
 Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock $scriptblock
+
+# Quick hash checker - Usage: Hash 1 .\file.iso
+function Hash {
+    param (
+        [Parameter(Position = 0)]
+        [ValidateSet('1', '256', '512', 'md5', '--help', '-help')]
+        [string]$shaType = '256',
+        
+        [Parameter(Position = 1)]
+        [string]$filePath
+    )
+    
+    # Show help if requested or if no file path is provided
+    if ($shaType -in '--help', '-help' -or -not $filePath) {
+        Write-Host "`nHash Checker - Usage:" -ForegroundColor Yellow
+        Write-Host "  Hash <type> <file_path>" -ForegroundColor Cyan
+        Write-Host "`nHash types available:" -ForegroundColor Yellow
+        Write-Host "  1    - SHA1" -ForegroundColor Cyan
+        Write-Host "  256  - SHA256 (default)" -ForegroundColor Cyan
+        Write-Host "  512  - SHA512" -ForegroundColor Cyan
+        Write-Host "  md5  - MD5" -ForegroundColor Cyan
+        Write-Host "`nExample:" -ForegroundColor Yellow
+        Write-Host "  Hash 1 .\file.iso" -ForegroundColor Cyan
+        Write-Host "  Hash md5 .\setup.exe`n" -ForegroundColor Cyan
+        return
+    }
+    
+    # Check if clipboard is empty
+    $expectedHash = Get-Clipboard
+    if ([string]::IsNullOrWhiteSpace($expectedHash)) {
+        Write-Host "`n❌ Error: Clipboard is empty!" -ForegroundColor Red
+        return
+    }
+
+    # Remove any whitespace from clipboard content
+    $expectedHash = $expectedHash.Trim()
+    
+    # Define regex patterns for different hash types
+    $hashPatterns = @{
+        'md5'  = '^[a-fA-F0-9]{32}$'
+        '1'    = '^[a-fA-F0-9]{40}$'
+        '256'  = '^[a-fA-F0-9]{64}$'
+        '512'  = '^[a-fA-F0-9]{128}$'
+    }
+
+    # Check if clipboard content matches any valid hash pattern
+    $isValidHash = $false
+    foreach ($pattern in $hashPatterns.Values) {
+        if ($expectedHash -match $pattern) {
+            $isValidHash = $true
+            break
+        }
+    }
+
+    if (-not $isValidHash) {
+        Write-Host "`n❌ Error: Clipboard content doesn't appear to be a valid hash!" -ForegroundColor Red
+        Write-Host "Content: $expectedHash" -ForegroundColor Yellow
+        Write-Host "Expected formats:" -ForegroundColor Yellow
+        Write-Host "  MD5    - 32 characters" -ForegroundColor Cyan
+        Write-Host "  SHA1   - 40 characters" -ForegroundColor Cyan
+        Write-Host "  SHA256 - 64 characters" -ForegroundColor Cyan
+        Write-Host "  SHA512 - 128 characters" -ForegroundColor Cyan
+        return
+    }
+    
+    $algorithm = if ($shaType -eq 'md5') { 'MD5' } else { "SHA$shaType" }
+    $fileHash = Get-FileHash -Path $filePath -Algorithm $algorithm
+    
+    Write-Host "`nFile: $filePath" -ForegroundColor Yellow
+    Write-Host "Calculated: $($fileHash.Hash)" -ForegroundColor Cyan
+    Write-Host "Expected:   $expectedHash" -ForegroundColor Cyan
+    
+    if ($fileHash.Hash -eq $expectedHash) {
+        Write-Host "`n✅ Match!" -ForegroundColor Green
+    } else {
+        Write-Host "`n❌ NO Match!" -ForegroundColor Red
+    }
+}
 
 # Help Function
 function Show-Help {
